@@ -1,0 +1,252 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #331d1d 0%, #140f12 45%, #080808 100%);
+  color: #f4ead7;
+  font-family: "Noto Sans TC", Arial, sans-serif;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.title-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.7)), radial-gradient(circle at center, #5c2721 0%, #171113 55%, #050505 100%);
+}
+
+.title-overlay {
+  text-align: center;
+  padding: 40px;
+  width: min(90%, 760px);
+  border: 1px solid rgba(220, 181, 112, 0.24);
+  border-radius: 22px;
+  background: rgba(12, 12, 14, 0.72);
+}
+
+.title-buttons,
+.system-buttons,
+.choices,
+.battle-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-shell {
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+}
+
+.panel,
+.panel-lite,
+.modal-card,
+.scene-panel,
+.enemy-card {
+  background: rgba(15, 15, 18, 0.9);
+  border: 1px solid rgba(201, 163, 92, 0.24);
+  border-radius: 18px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+}
+
+.panel-lite,
+.scene-panel,
+.enemy-card {
+  padding: 16px;
+}
+
+.sidebar,
+.main {
+  padding: 20px;
+}
+
+.subtitle,
+.small-label,
+.system-message {
+  color: #cdbb9f;
+}
+
+.status-block {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(201, 163, 92, 0.16);
+}
+
+.portrait-frame {
+  height: 220px;
+  border-radius: 18px;
+  background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.45)), radial-gradient(circle at 50% 25%, #5e2f28 0%, #24181c 60%, #101012 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  position: relative;
+}
+
+.portrait-frame::before {
+  content: "羅喉";
+  font-size: 54px;
+  color: rgba(255,255,255,0.08);
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  letter-spacing: 6px;
+}
+
+.meter-wrap {
+  margin-bottom: 14px;
+}
+
+.meter-label,
+.fate-row,
+.enemy-head,
+.chapter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meter {
+  width: 100%;
+  height: 12px;
+  background: #221b1b;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #e2b96f, #b84b3c);
+  transition: width 0.25s ease;
+}
+
+.meter-fill.alt {
+  background: linear-gradient(90deg, #6aa7d8, #4a62d8);
+}
+
+.meter-fill.rage {
+  background: linear-gradient(90deg, #ff9248, #ff3f3f);
+}
+
+.meter-fill.enemy {
+  background: linear-gradient(90deg, #7f1515, #d63b3b);
+}
+
+.stats-grid,
+.equipment-grid,
+.map-grid,
+.inventory-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.map-grid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.stats-grid div,
+.fate-row,
+.chapter-badge,
+.enemy-level,
+.map-node,
+.inventory-item,
+.equipment-item {
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+}
+
+.map-node.locked {
+  opacity: 0.45;
+}
+
+.story-text,
+.battle-log,
+.story-log {
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.story-text {
+  min-height: 200px;
+}
+
+.story-log {
+  max-height: 180px;
+  overflow: auto;
+}
+
+.story-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.story-tags span {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(201, 163, 92, 0.12);
+  color: #f0c97e;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: linear-gradient(180deg, #b14537, #7e231f);
+  color: #fff6ec;
+  cursor: pointer;
+}
+
+button.ghost {
+  background: linear-gradient(180deg, #52525a, #313138);
+}
+
+.fade-panel {
+  animation: fadeIn 0.25s ease;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.58);
+  display: grid;
+  place-items: center;
+  z-index: 30;
+}
+
+.modal-card {
+  width: min(92%, 640px);
+  padding: 24px;
+}
+
+.help-list {
+  padding-left: 18px;
+  line-height: 1.8;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 920px) {
+  .page-shell {
+    grid-template-columns: 1fr;
+  }
+}
