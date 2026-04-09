@@ -37,6 +37,11 @@ body {
   margin-bottom: 12px;
 }
 
+.tip-text {
+  margin-top: 18px;
+  color: #f0c97e;
+}
+
 .title-buttons {
   margin-top: 24px;
   display: flex;
@@ -169,7 +174,8 @@ body {
 .fate-row,
 .chapter-badge,
 .enemy-level,
-.chapter-map-item {
+.chapter-map-item,
+.enemy-intent {
   padding: 8px 10px;
   background: rgba(255,255,255,0.04);
   border-radius: 10px;
@@ -190,6 +196,10 @@ body {
   color: #ffcf7a;
 }
 
+.chapter-map-item.reached {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
 .scene-panel,
 .enemy-card {
   background: rgba(255,255,255,0.03);
@@ -203,6 +213,7 @@ body {
   line-height: 1.85;
   font-size: 17px;
   white-space: pre-line;
+  cursor: pointer;
 }
 
 .story-tags {
@@ -252,6 +263,11 @@ button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+.enemy-intent {
+  margin-top: 14px;
+  color: #ffcf7a;
 }
 
 .battle-log {

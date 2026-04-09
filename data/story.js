@@ -11,7 +11,7 @@ const story = {
 今日的第一步，將決定你走向霸道、王道，或真相。`,
     choices: [
       { text: "踏著焦土，立誓清算仇敵", next: "blood_road", effect: { tyrant: 2 } },
-      { text: "先救援殘民，重整秩序", next: "refuge", effect: { king: 2 } },
+      { text: "先救援殘民，重整秩序", next: "refuge", effect: { king: 2, potions: 1 } },
       { text: "追查天都覆滅背後線索", next: "spy_trace", effect: { truth: 2 } }
     ]
   },
@@ -23,6 +23,8 @@ const story = {
     text:
 `你命殘兵收攏流民，將糧車分予飢民。
 百姓看向你的目光，不再只有恐懼，還多了一絲難以言說的寄望。
+
+有老卒將僅存的軍糧丹交給你：『武君，大戰在後，請保重。』
 
 只是，遠處戰鼓再響。有人不願看見天都餘火重燃。`,
     choices: [
@@ -83,10 +85,11 @@ const story = {
 `血狼將軍倒下後，邊軍四散。
 你在其軍帳中搜出一封密令，落款竟指向一座早已荒廢的古城。
 
+軍帳深處另藏著一匣補給，尚有可用丹藥。
 有人在那裡等你。`,
     choices: [
-      { text: "立刻前往荒城", next: "ghost_city", effect: { truth: 1 } },
-      { text: "先整肅周遭勢力，再進古城", next: "ghost_city", effect: { king: 1 } }
+      { text: "立刻前往荒城", next: "ghost_city", effect: { truth: 1, potions: 1 } },
+      { text: "先整肅周遭勢力，再進古城", next: "ghost_city", effect: { king: 1, potions: 1 } }
     ]
   },
 
@@ -101,7 +104,7 @@ const story = {
 這不是單純戰敗，而是一場被設計好的毀滅。`,
     choices: [
       { text: "焚毀叛徒據點，以血還血", next: "battle_ghost", effect: { tyrant: 2 } },
-      { text: "收編殘兵與難民，重建古城秩序", next: "battle_ghost", effect: { king: 2 } },
+      { text: "收編殘兵與難民，重建古城秩序", next: "battle_ghost", effect: { king: 2, potions: 1 } },
       { text: "破解密文，追查真正主使", next: "battle_ghost", effect: { truth: 2 } }
     ]
   },
@@ -134,7 +137,7 @@ const story = {
     choices: [
       { text: "力量即真理，天下只配臣服", next: "battle_shadow", effect: { tyrant: 2 } },
       { text: "王者當背負眾生與秩序", next: "battle_shadow", effect: { king: 2 } },
-      { text: "若無真相，王與魔皆是虛妄", next: "battle_shadow", effect: { truth: 2 } }
+      { text: "若無真相，王與魔皆是虛妄", next: "battle_shadow", effect: { truth: 2, mp: 8 } }
     ]
   },
 
@@ -163,7 +166,7 @@ const story = {
 如今，幕後黑手黑謀宰已現身。`,
     choices: [
       { text: "以武破局，血債血償", next: "final_battle", effect: { tyrant: 2 } },
-      { text: "召集舊部與百姓，建立新天都秩序", next: "final_battle", effect: { king: 2 } },
+      { text: "召集舊部與百姓，建立新天都秩序", next: "final_battle", effect: { king: 2, potions: 1 } },
       { text: "逼黑謀宰說出所有幕後真相", next: "final_battle", effect: { truth: 2 } }
     ]
   },
@@ -194,29 +197,37 @@ const enemies = {
   wolf_general: {
     name: "血狼將軍",
     level: 8,
-    hp: 110,
+    hp: 120,
     atk: 15,
-    intro: "血狼將軍揮舞戰刀，帶著邊軍的血氣殺來。"
+    intro: "血狼將軍揮舞戰刀，帶著邊軍的血氣殺來。",
+    intent: "重擊突進",
+    reward: { potions: 1 }
   },
   ghost_scholar: {
     name: "鬼智師",
     level: 12,
-    hp: 135,
+    hp: 145,
     atk: 18,
-    intro: "鬼智師笑聲詭異，擅長以幻術消磨你的意志。"
+    intro: "鬼智師笑聲詭異，擅長以幻術消磨你的意志。",
+    intent: "幻術穿心",
+    reward: { mp: 10 }
   },
   shadow_luo_hou: {
     name: "幻影羅喉",
     level: 16,
-    hp: 180,
+    hp: 190,
     atk: 24,
-    intro: "面對自己的心魔，任何遲疑都會化成致命破綻。"
+    intro: "面對自己的心魔，任何遲疑都會化成致命破綻。",
+    intent: "怒焰連斬",
+    reward: { hp: 20 }
   },
   black_chancellor: {
     name: "黑謀宰",
     level: 20,
-    hp: 240,
-    atk: 28,
-    intro: "黑謀宰終於現出全力，準備以最後謀局吞噬一切。"
+    hp: 255,
+    atk: 29,
+    intro: "黑謀宰終於現出全力，準備以最後謀局吞噬一切。",
+    intent: "黑謀天網",
+    reward: { potions: 1, mp: 12 }
   }
 };

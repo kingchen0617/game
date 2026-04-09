@@ -1,4 +1,4 @@
-const SAVE_KEY = "luohou_rpg_save_v2";
+const SAVE_KEY = "luohou_rpg_save_v3";
 
 let player = {};
 let currentNode = "start";
@@ -6,6 +6,10 @@ let currentEnemy = null;
 let battleActive = false;
 let audioEnabled = false;
 let storyLog = [];
+let typingTimer = null;
+let currentTypingText = "";
+let typingIndex = 0;
+let activeTextTarget = null;
 
 const chapters = [
   "序章：天都殘火",
@@ -19,13 +23,16 @@ const chapters = [
 function createNewPlayer() {
   return {
     name: "武君・羅喉",
-    maxHp: 160,
-    hp: 160,
-    maxMp: 60,
-    mp: 60,
+    maxHp: 170,
+    hp: 170,
+    maxMp: 65,
+    mp: 65,
     rage: 0,
-    atk: 18,
+    atk: 19,
     level: 1,
+    potions: 1,
+    guard: false,
+    victories: 0,
     fate: {
       tyrant: 0,
       king: 0,
@@ -43,17 +50,20 @@ function setSystemMessage(message) {
 }
 
 function addStoryLog(text) {
+  if (!text) return;
   storyLog.unshift(text);
-  storyLog = storyLog.slice(0, 12);
+  storyLog = storyLog.slice(0, 14);
   document.getElementById("story-log").innerText = storyLog.join("\n\n");
 }
 
 function updateChapterMap(currentChapter) {
   const el = document.getElementById("chapter-map");
   el.innerHTML = "";
-  chapters.forEach(ch => {
+  chapters.forEach((ch, index) => {
     const div = document.createElement("div");
-    div.className = "chapter-map-item" + (ch === currentChapter ? " active" : "");
+    const isActive = ch === currentChapter;
+    const isReached = chapters.indexOf(currentChapter) >= index;
+    div.className = "chapter-map-item" + (isActive ? " active" : "") + (isReached ? " reached" : "");
     div.innerText = ch;
     el.appendChild(div);
   });
@@ -65,6 +75,7 @@ function applyEffects(effect = {}) {
   if (effect.truth) player.fate.truth += effect.truth;
   if (effect.hp) player.hp = clamp(player.hp + effect.hp, 0, player.maxHp);
   if (effect.mp) player.mp = clamp(player.mp + effect.mp, 0, player.maxMp);
+  if (effect.potions) player.potions = clamp(player.potions + effect.potions, 0, 9);
 }
 
 function updateStatusUI() {
@@ -75,6 +86,8 @@ function updateStatusUI() {
   document.getElementById("hp-text").innerText = `${player.hp} / ${player.maxHp}`;
   document.getElementById("mp-text").innerText = `${player.mp} / ${player.maxMp}`;
   document.getElementById("rage-text").innerText = `${player.rage} / 100`;
+  document.getElementById("potion-count").innerText = player.potions;
+  document.getElementById("guard-status").innerText = player.guard ? "已架勢" : "未啟動";
 
   document.getElementById("hp-bar").style.width = `${hpPct}%`;
   document.getElementById("mp-bar").style.width = `${mpPct}%`;
@@ -88,8 +101,10 @@ function updateStatusUI() {
     <div>等級：${player.level}</div>
     <div>攻擊：${player.atk}</div>
     <div>稱號：武君</div>
-    <div>狀態：${player.hp > 0 ? "可戰" : "倒下"}</div>
+    <div>戰績：${player.victories} 勝</div>
   `;
+
+  updateBattleButtonsState();
 }
 
 function renderTags(tags = []) {
@@ -102,13 +117,32 @@ function renderTags(tags = []) {
   });
 }
 
+function finishTypeText() {
+  if (!typingTimer || !activeTextTarget) return;
+  clearInterval(typingTimer);
+  typingTimer = null;
+  activeTextTarget.innerText = currentTypingText;
+  typingIndex = currentTypingText.length;
+}
+
 function typeText(target, text, speed = 16) {
+  if (typingTimer) {
+    clearInterval(typingTimer);
+    typingTimer = null;
+  }
+
+  activeTextTarget = target;
+  currentTypingText = text || "";
+  typingIndex = 0;
   target.innerText = "";
-  let i = 0;
-  const timer = setInterval(() => {
-    target.innerText += text[i] || "";
-    i++;
-    if (i > text.length) clearInterval(timer);
+
+  typingTimer = setInterval(() => {
+    target.innerText += currentTypingText[typingIndex] || "";
+    typingIndex++;
+    if (typingIndex >= currentTypingText.length) {
+      clearInterval(typingTimer);
+      typingTimer = null;
+    }
   }, speed);
 }
 
@@ -124,6 +158,7 @@ function renderChoices(choices = []) {
       applyEffects(choice.effect);
       addStoryLog(`【選擇】${choice.text}`);
       currentNode = choice.next;
+      autoSave("節點推進自動存檔。");
       renderNode(currentNode);
     };
     choicesEl.appendChild(btn);
@@ -160,13 +195,16 @@ function renderEnding() {
     text = `你揭穿所有佈局，也放下了被命運綑綁的自己。\n從此，羅喉之名化作傳說。`;
   }
 
+  const summary = `\n\n【戰役總結】\n等級：${player.level}\n戰績：${player.victories} 勝\n軍糧丹剩餘：${player.potions}\n霸道 ${t} / 王道 ${k} / 真相 ${r}`;
+
   document.getElementById("chapter-title").innerText = title;
   document.getElementById("chapter-badge").innerText = tag;
   renderTags(["終局", tag]);
-  typeText(document.getElementById("story"), text);
+  typeText(document.getElementById("story"), text + summary);
   document.getElementById("choices").innerHTML = `<button onclick="resetGame()">重新開始</button>`;
   document.getElementById("battle-panel").classList.add("hidden");
   addStoryLog(`【結局】${title}`);
+  setSystemMessage("已抵達結局。");
 }
 
 function renderBattle(enemyKey, winNext) {
@@ -176,26 +214,31 @@ function renderBattle(enemyKey, winNext) {
     winNext
   };
   battleActive = true;
+  player.guard = false;
 
   document.getElementById("battle-panel").classList.remove("hidden");
   document.getElementById("choices").innerHTML = "";
   document.getElementById("enemy-name").innerText = currentEnemy.name;
   document.getElementById("enemy-level").innerText = `Lv.${currentEnemy.level}`;
+  document.getElementById("enemy-intent").innerText = `敵方意圖：${currentEnemy.intent || "試探攻擊"}`;
   document.getElementById("battle-log").innerText = currentEnemy.intro;
 
   const actionsEl = document.getElementById("battle-actions");
   actionsEl.innerHTML = "";
 
   const actions = [
-    { text: "普通攻擊", handler: normalAttack },
-    { text: "武君戰印（12 真元）", handler: powerSkill },
-    { text: "計略觀心（回復真元）", handler: meditate },
-    { text: "終式・計都斬（怒氣 100）", handler: rageSkill }
+    { text: "普通攻擊", handler: normalAttack, key: "attack" },
+    { text: "武君戰印（12 真元）", handler: powerSkill, key: "skill" },
+    { text: "計略觀心（回復真元）", handler: meditate, key: "meditate" },
+    { text: "戰場防禦", handler: guardStance, key: "guard" },
+    { text: "軍糧丹（恢復 35）", handler: usePotion, key: "potion" },
+    { text: "終式・計都斬（怒氣 100）", handler: rageSkill, key: "rage" }
   ];
 
   actions.forEach(action => {
     const btn = document.createElement("button");
     btn.innerText = action.text;
+    btn.dataset.action = action.key;
     btn.onclick = action.handler;
     actionsEl.appendChild(btn);
   });
@@ -209,24 +252,65 @@ function updateBattleUI(logText) {
   document.getElementById("enemy-hp-text").innerText = `${Math.max(0, currentEnemy.currentHp)} / ${currentEnemy.hp}`;
   document.getElementById("enemy-hp-bar").style.width = `${Math.max(0, pct)}%`;
   if (logText) document.getElementById("battle-log").innerText = logText;
+  document.getElementById("enemy-intent").innerText = `敵方意圖：${currentEnemy.intent || "試探攻擊"}`;
   updateStatusUI();
+}
+
+function updateBattleButtonsState() {
+  if (!battleActive) return;
+  const btns = Array.from(document.querySelectorAll("#battle-actions button"));
+  btns.forEach(btn => {
+    const action = btn.dataset.action;
+    btn.disabled =
+      (action === "skill" && player.mp < 12) ||
+      (action === "rage" && player.rage < 100) ||
+      (action === "potion" && player.potions <= 0);
+  });
 }
 
 function enemyTurn(extraText = "") {
   if (!battleActive || !currentEnemy || currentEnemy.currentHp <= 0) return;
-  const dmg = currentEnemy.atk + Math.floor(Math.random() * 6);
+
+  const baseDmg = currentEnemy.atk + Math.floor(Math.random() * 6);
+  const dmg = player.guard ? Math.ceil(baseDmg * 0.5) : baseDmg;
   player.hp = clamp(player.hp - dmg, 0, player.maxHp);
+
+  const guardText = player.guard ? "\n你的防禦架勢減輕了部分傷害。" : "";
+  player.guard = false;
 
   if (player.hp <= 0) {
     battleActive = false;
-    updateBattleUI(`${extraText}\n${currentEnemy.name}重創了你。\n羅喉倒下了。`);
+    updateBattleUI(`${extraText}\n${currentEnemy.name}重創了你，造成 ${dmg} 點傷害。${guardText}\n羅喉倒下了。`);
     document.getElementById("choices").innerHTML = `<button onclick="resetGame()">重新開始</button>`;
     document.getElementById("battle-actions").innerHTML = "";
     addStoryLog(`【戰敗】敗於 ${currentEnemy.name}`);
+    setSystemMessage("戰鬥失敗。可讀檔或重新開始。");
     return;
   }
 
-  updateBattleUI(`${extraText}\n${currentEnemy.name}反擊，造成 ${dmg} 點傷害。`);
+  updateBattleUI(`${extraText}\n${currentEnemy.name}反擊，造成 ${dmg} 點傷害。${guardText}`);
+}
+
+function grantBattleReward() {
+  if (!currentEnemy || !currentEnemy.reward) return [];
+
+  const rewards = [];
+  const reward = currentEnemy.reward;
+
+  if (reward.potions) {
+    player.potions = clamp(player.potions + reward.potions, 0, 9);
+    rewards.push(`軍糧丹 +${reward.potions}`);
+  }
+  if (reward.hp) {
+    player.hp = clamp(player.hp + reward.hp, 0, player.maxHp);
+    rewards.push(`氣血 +${reward.hp}`);
+  }
+  if (reward.mp) {
+    player.mp = clamp(player.mp + reward.mp, 0, player.maxMp);
+    rewards.push(`真元 +${reward.mp}`);
+  }
+
+  return rewards;
 }
 
 function checkBattleWin(extraText = "") {
@@ -239,11 +323,16 @@ function checkBattleWin(extraText = "") {
   player.hp = clamp(player.hp + 35, 0, player.maxHp);
   player.mp = clamp(player.mp + 20, 0, player.maxMp);
   player.rage = 0;
+  player.victories += 1;
 
-  updateBattleUI(`${extraText}\n你擊敗了 ${currentEnemy.name}！`);
+  const rewards = grantBattleReward();
+  const rewardText = rewards.length ? `\n戰利品：${rewards.join("、")}` : "";
+
+  updateBattleUI(`${extraText}\n你擊敗了 ${currentEnemy.name}！${rewardText}`);
   document.getElementById("battle-actions").innerHTML = "";
   document.getElementById("choices").innerHTML = `<button onclick="proceedAfterBattle()">繼續前進</button>`;
   addStoryLog(`【勝利】擊敗 ${currentEnemy.name}`);
+  autoSave("戰鬥勝利自動存檔。");
   return true;
 }
 
@@ -279,7 +368,24 @@ function meditate() {
   const gain = 8;
   player.mp = clamp(player.mp + gain, 0, player.maxMp);
   player.fate.truth += 1;
-  enemyTurn(`你運轉心法，回復 ${gain} 點真元。`);
+  enemyTurn(`你運轉心法，回復 ${gain} 點真元，心境更趨澄明。`);
+}
+
+function guardStance() {
+  player.guard = true;
+  player.mp = clamp(player.mp + 4, 0, player.maxMp);
+  enemyTurn("你穩住身形，擺出防禦架勢，並趁隙回復少許真元。");
+}
+
+function usePotion() {
+  if (player.potions <= 0) {
+    updateBattleUI("軍糧丹不足。");
+    return;
+  }
+  player.potions -= 1;
+  const heal = 35;
+  player.hp = clamp(player.hp + heal, 0, player.maxHp);
+  enemyTurn(`你迅速吞下軍糧丹，回復 ${heal} 點氣血。`);
 }
 
 function rageSkill() {
@@ -323,9 +429,17 @@ function renderNode(nodeKey) {
   updateStatusUI();
 }
 
+function serializeGameData() {
+  return { player, currentNode, storyLog, audioEnabled };
+}
+
+function autoSave(message = "") {
+  localStorage.setItem(SAVE_KEY, JSON.stringify(serializeGameData()));
+  if (message) setSystemMessage(message);
+}
+
 function saveGame() {
-  const data = { player, currentNode, storyLog, audioEnabled };
-  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  localStorage.setItem(SAVE_KEY, JSON.stringify(serializeGameData()));
   setSystemMessage("進度已儲存。");
 }
 
@@ -337,7 +451,7 @@ function loadGame() {
   }
   try {
     const data = JSON.parse(raw);
-    player = data.player;
+    player = { ...createNewPlayer(), ...(data.player || {}) };
     currentNode = data.currentNode || "start";
     storyLog = data.storyLog || [];
     audioEnabled = !!data.audioEnabled;
@@ -369,6 +483,10 @@ function playClick() {
   el.currentTime = 0;
   el.play().catch(() => {});
 }
+
+document.getElementById("story").addEventListener("click", () => {
+  finishTypeText();
+});
 
 document.getElementById("start-game-btn").addEventListener("click", () => {
   document.getElementById("title-screen").classList.add("hidden");

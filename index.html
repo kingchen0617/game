@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>羅喉傳：天都戰記 v2</title>
+  <title>羅喉傳：天都戰記 v3</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div id="title-screen" class="title-screen">
     <div class="title-overlay">
       <h1>羅喉傳：天都戰記</h1>
-      <p>布袋戲風單機 Web RPG・第二版強化包</p>
+      <p>布袋戲風單機 Web RPG・強化版</p>
       <div class="title-buttons">
         <button id="start-game-btn">開始遊戲</button>
         <button id="show-help-btn" class="ghost">操作說明</button>
       </div>
+      <p class="tip-text">新增：自動存檔、戰鬥防禦、補給背包、打字跳過、戰況提示</p>
     </div>
   </div>
 
@@ -22,14 +23,15 @@
     <div class="modal-card">
       <h2>遊戲操作方式</h2>
       <ul class="help-list">
-        <li>點選劇情選項推進主線</li>
-        <li>普通攻擊：穩定輸出並累積怒氣</li>
-        <li>武君戰印：消耗真元造成高傷害</li>
-        <li>計略觀心：恢復真元並微幅增加真相傾向</li>
-        <li>終式・計都斬：怒氣滿 100 時可施放</li>
-        <li>儲存進度：將資料寫入瀏覽器 localStorage</li>
-        <li>讀取進度：回到先前的進度節點</li>
-        <li>章節選單：可觀看目前章節流程</li>
+        <li>點選劇情選項推進主線，關鍵選項會影響結局走向。</li>
+        <li>普通攻擊：穩定輸出並快速累積怒氣。</li>
+        <li>武君戰印：消耗真元造成高傷害。</li>
+        <li>計略觀心：回復真元並增加真相傾向。</li>
+        <li>戰場防禦：減少下一次受到的傷害，並小幅回復真元。</li>
+        <li>軍糧丹：戰鬥中可即時補血，擊敗首領後有機率補充。</li>
+        <li>終式・計都斬：怒氣滿 100 時可施放。</li>
+        <li>點擊劇情文字區可直接跳過打字效果。</li>
+        <li>每次進入新章節或戰鬥勝利後會自動存檔。</li>
       </ul>
       <button id="close-help-btn">關閉</button>
     </div>
@@ -38,7 +40,7 @@
   <div id="game-app" class="page-shell hidden">
     <aside class="sidebar panel">
       <h1>羅喉傳：天都戰記</h1>
-      <p class="subtitle">第二版・單機強化版</p>
+      <p class="subtitle">第三版・單機強化版</p>
 
       <section class="portrait-panel">
         <div id="portrait" class="portrait-frame">
@@ -68,6 +70,12 @@
         <div class="fate-row"><span>霸道</span><strong id="fate-tyrant">0</strong></div>
         <div class="fate-row"><span>王道</span><strong id="fate-king">0</strong></div>
         <div class="fate-row"><span>真相</span><strong id="fate-truth">0</strong></div>
+      </section>
+
+      <section class="status-block">
+        <h2>戰場資源</h2>
+        <div class="fate-row"><span>軍糧丹</span><strong id="potion-count">0</strong></div>
+        <div class="fate-row"><span>防禦架勢</span><strong id="guard-status">未啟動</strong></div>
       </section>
 
       <section class="status-block">
@@ -114,6 +122,7 @@
             <div class="meter-label"><span>敵方氣血</span><span id="enemy-hp-text"></span></div>
             <div class="meter"><div id="enemy-hp-bar" class="meter-fill enemy"></div></div>
           </div>
+          <div id="enemy-intent" class="enemy-intent"></div>
           <p id="battle-log" class="battle-log"></p>
         </div>
         <div id="battle-actions" class="battle-actions"></div>
