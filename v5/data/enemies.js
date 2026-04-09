@@ -1,0 +1,1 @@
+const enemies={bandit:{name:'掠奪者',hp:80,atk:12,drop:['potion_small']},ghost:{name:'鬼智師',hp:100,atk:15,drop:['blade']},boss:{name:'魔化將軍',hp:200,atk:25,drop:['armor']}};
