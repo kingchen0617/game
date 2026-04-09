@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>羅喉傳：天都戰記 v6</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="title-screen" class="title-screen">
+    <div class="title-overlay">
+      <h1>羅喉傳：天都戰記</h1>
+      <p>v6・穩定整合版</p>
+      <div class="title-buttons">
+        <button id="start-game-btn">開始遊戲</button>
+        <button id="show-help-btn" class="ghost">操作說明</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="help-modal" class="modal hidden">
+    <div class="modal-card">
+      <h2>操作說明</h2>
+      <ul class="help-list">
+        <li>點擊地圖按鈕進行人物移動</li>
+        <li>移動後會顯示區域說明與當前狀態</li>
+        <li>荒原與古都會遭遇小敵人</li>
+        <li>擊敗小敵人後才能解鎖並進入 Boss 區域</li>
+        <li>戰鬥中可使用普通攻擊、武君戰印、計略觀心、計都斬</li>
+        <li>背包中的消耗品可使用，裝備可直接穿戴並影響能力</li>
+      </ul>
+      <button id="close-help-btn">關閉</button>
+    </div>
+  </div>
+
+  <div id="game-app" class="page-shell hidden">
+    <aside class="sidebar panel">
+      <h1>羅喉傳：天都戰記</h1>
+      <p class="subtitle">v6・正式版</p>
+      <section class="portrait-panel"><div class="portrait-frame"><div class="portrait-name">武君・羅喉</div></div></section>
+      <section class="status-block">
+        <h2>角色狀態</h2>
+        <div class="meter-wrap"><div class="meter-label"><span>氣血</span><span id="hp-text"></span></div><div class="meter"><div id="hp-bar" class="meter-fill"></div></div></div>
+        <div class="meter-wrap"><div class="meter-label"><span>真元</span><span id="mp-text"></span></div><div class="meter"><div id="mp-bar" class="meter-fill alt"></div></div></div>
+        <div class="meter-wrap"><div class="meter-label"><span>怒氣</span><span id="rage-text"></span></div><div class="meter"><div id="rage-bar" class="meter-fill rage"></div></div></div>
+        <div id="stats" class="stats-grid"></div>
+      </section>
+      <section class="status-block"><h2>裝備</h2><div id="equipment-panel" class="equipment-grid"></div></section>
+      <section class="status-block"><h2>系統</h2><div class="system-buttons"><button id="save-btn">儲存進度</button><button id="load-btn">讀取進度</button><button id="restart-btn" class="ghost">重新開始</button></div><p id="system-message" class="system-message"></p></section>
+    </aside>
+    <main class="main panel">
+      <section class="panel-lite"><h3>地圖探索</h3><div id="map-panel" class="map-grid"></div></section>
+      <section id="scene-panel" class="scene-panel"><div id="story" class="story-text"></div></section>
+      <section id="battle-panel" class="battle-panel hidden"><div class="enemy-card"><div class="enemy-head"><div><div class="small-label">當前敵手</div><h3 id="enemy-name">敵人</h3></div><div id="enemy-level" class="enemy-level">Lv.1</div></div><div class="meter-wrap"><div class="meter-label"><span>敵方氣血</span><span id="enemy-hp-text"></span></div><div class="meter"><div id="enemy-hp-bar" class="meter-fill enemy"></div></div></div><p id="battle-log" class="battle-log"></p></div><div id="battle-actions" class="battle-actions"></div></section>
+      <section class="panel-lite"><h3>背包</h3><div id="inventory-panel" class="inventory-grid"></div></section>
+    </main>
+  </div>
+  <script src="styles.css" hidden></script>
+  <script src="game.js"></script>
+</body>
+</html>
