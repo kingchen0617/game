@@ -1,0 +1,1 @@
+const items={potion_small:{name:'小還丹',type:'consumable',effect:{hp:40}},blade:{name:'戰刃',type:'weapon',slot:'weapon',atk:10},armor:{name:'戰甲',type:'armor',slot:'armor',hp:50}};
