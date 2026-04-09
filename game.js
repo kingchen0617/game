@@ -1,4 +1,5 @@
 const SAVE_KEY = "luohou_rpg_save_v3";
+const SAVE_VERSION = 2;
 
 let player = {};
 let currentNode = "start";
@@ -430,37 +431,84 @@ function renderNode(nodeKey) {
 }
 
 function serializeGameData() {
-  return { player, currentNode, storyLog, audioEnabled };
+  return {
+    version: SAVE_VERSION,
+    savedAt: new Date().toISOString(),
+    player,
+    currentNode,
+    storyLog,
+    audioEnabled
+  };
+}
+
+function getSaveData() {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function hasSaveData() {
+  return !!getSaveData();
+}
+
+function formatSaveTime(savedAt) {
+  if (!savedAt) return "未知時間";
+  const date = new Date(savedAt);
+  if (Number.isNaN(date.getTime())) return "未知時間";
+  return date.toLocaleString("zh-TW", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function updateContinueButton() {
+  const continueBtn = document.getElementById("continue-game-btn");
+  if (!continueBtn) return;
+
+  const saveData = getSaveData();
+  if (!saveData) {
+    continueBtn.classList.add("hidden");
+    continueBtn.innerText = "繼續遊戲";
+    return;
+  }
+
+  continueBtn.classList.remove("hidden");
+  continueBtn.innerText = `繼續遊戲（${formatSaveTime(saveData.savedAt)}）`;
 }
 
 function autoSave(message = "") {
   localStorage.setItem(SAVE_KEY, JSON.stringify(serializeGameData()));
+  updateContinueButton();
   if (message) setSystemMessage(message);
 }
 
 function saveGame() {
   localStorage.setItem(SAVE_KEY, JSON.stringify(serializeGameData()));
+  updateContinueButton();
   setSystemMessage("進度已儲存。");
 }
 
 function loadGame() {
-  const raw = localStorage.getItem(SAVE_KEY);
-  if (!raw) {
+  const data = getSaveData();
+  if (!data) {
     setSystemMessage("沒有可讀取的存檔。");
     return;
   }
-  try {
-    const data = JSON.parse(raw);
-    player = { ...createNewPlayer(), ...(data.player || {}) };
-    currentNode = data.currentNode || "start";
-    storyLog = data.storyLog || [];
-    audioEnabled = !!data.audioEnabled;
-    updateAudioButton();
-    renderNode(currentNode);
-    setSystemMessage("已讀取存檔。");
-  } catch {
-    setSystemMessage("讀檔失敗。");
-  }
+
+  player = { ...createNewPlayer(), ...(data.player || {}) };
+  currentNode = data.currentNode || "start";
+  storyLog = data.storyLog || [];
+  audioEnabled = !!data.audioEnabled;
+  updateAudioButton();
+  renderNode(currentNode);
+  setSystemMessage("已讀取存檔。");
 }
 
 function resetGame() {
@@ -491,7 +539,17 @@ document.getElementById("story").addEventListener("click", () => {
 document.getElementById("start-game-btn").addEventListener("click", () => {
   document.getElementById("title-screen").classList.add("hidden");
   document.getElementById("game-app").classList.remove("hidden");
-  if (!player.name) resetGame();
+  resetGame();
+});
+
+document.getElementById("continue-game-btn").addEventListener("click", () => {
+  document.getElementById("title-screen").classList.add("hidden");
+  document.getElementById("game-app").classList.remove("hidden");
+  if (hasSaveData()) {
+    loadGame();
+    return;
+  }
+  resetGame();
 });
 
 document.getElementById("show-help-btn").addEventListener("click", () => {
@@ -513,3 +571,4 @@ document.getElementById("toggle-audio-btn").addEventListener("click", () => {
 
 player = createNewPlayer();
 updateAudioButton();
+updateContinueButton();
