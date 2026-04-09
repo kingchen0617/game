@@ -1,0 +1,319 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top, #331d1d 0%, #140f12 45%, #080808 100%);
+  color: #f4ead7;
+  font-family: "Noto Sans TC", Arial, sans-serif;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.title-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.7)),
+    radial-gradient(circle at center, #5c2721 0%, #171113 55%, #050505 100%);
+}
+
+.title-overlay {
+  text-align: center;
+  padding: 40px;
+  width: min(90%, 760px);
+  border: 1px solid rgba(220, 181, 112, 0.24);
+  border-radius: 22px;
+  background: rgba(12, 12, 14, 0.72);
+}
+
+.title-overlay h1 {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.tip-text {
+  margin-top: 18px;
+  color: #f0c97e;
+}
+
+.title-buttons {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-shell {
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+}
+
+.panel,
+.panel-lite,
+.modal-card {
+  background: rgba(15, 15, 18, 0.9);
+  border: 1px solid rgba(201, 163, 92, 0.24);
+  border-radius: 18px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+}
+
+.panel-lite {
+  padding: 16px;
+}
+
+.sidebar,
+.main {
+  padding: 20px;
+}
+
+.subtitle,
+.small-label,
+.system-message {
+  color: #cdbb9f;
+}
+
+.status-block {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(201, 163, 92, 0.16);
+}
+
+.portrait-panel {
+  margin-top: 18px;
+}
+
+.portrait-frame {
+  height: 220px;
+  border-radius: 18px;
+  background:
+    linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.45)),
+    radial-gradient(circle at 50% 25%, #5e2f28 0%, #24181c 60%, #101012 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  position: relative;
+}
+
+.portrait-frame::before {
+  content: "羅喉";
+  font-size: 54px;
+  color: rgba(255,255,255,0.08);
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  letter-spacing: 6px;
+}
+
+.portrait-name {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.4);
+}
+
+.meter-wrap {
+  margin-bottom: 14px;
+}
+
+.meter-label,
+.fate-row,
+.enemy-head,
+.chapter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.meter {
+  width: 100%;
+  height: 12px;
+  background: #221b1b;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #e2b96f, #b84b3c);
+  transition: width 0.25s ease;
+}
+
+.meter-fill.alt {
+  background: linear-gradient(90deg, #6aa7d8, #4a62d8);
+}
+
+.meter-fill.rage {
+  background: linear-gradient(90deg, #ff9248, #ff3f3f);
+}
+
+.meter-fill.enemy {
+  background: linear-gradient(90deg, #7f1515, #d63b3b);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stats-grid div,
+.fate-row,
+.chapter-badge,
+.enemy-level,
+.chapter-map-item,
+.enemy-intent {
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+}
+
+.chapter-map {
+  margin-bottom: 18px;
+}
+
+.chapter-map-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.chapter-map-item.active {
+  border: 1px solid rgba(255, 206, 122, 0.45);
+  color: #ffcf7a;
+}
+
+.chapter-map-item.reached {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+.scene-panel,
+.enemy-card {
+  background: rgba(255,255,255,0.03);
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.story-text {
+  min-height: 220px;
+  line-height: 1.85;
+  font-size: 17px;
+  white-space: pre-line;
+  cursor: pointer;
+}
+
+.story-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.story-tags span {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(201, 163, 92, 0.12);
+  color: #f0c97e;
+}
+
+.choices,
+.battle-actions,
+.system-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: linear-gradient(180deg, #b14537, #7e231f);
+  color: #fff6ec;
+  cursor: pointer;
+  font-size: 15px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button.ghost {
+  background: linear-gradient(180deg, #52525a, #313138);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.enemy-intent {
+  margin-top: 14px;
+  color: #ffcf7a;
+}
+
+.battle-log {
+  min-height: 88px;
+  line-height: 1.7;
+  white-space: pre-line;
+  color: #f8e8c5;
+}
+
+.log-panel {
+  margin-top: 18px;
+}
+
+.story-log {
+  max-height: 180px;
+  overflow: auto;
+  line-height: 1.7;
+  color: #dbc9aa;
+  white-space: pre-line;
+}
+
+.help-list {
+  padding-left: 18px;
+  line-height: 1.8;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.58);
+  display: grid;
+  place-items: center;
+  z-index: 30;
+}
+
+.modal-card {
+  width: min(92%, 640px);
+  padding: 24px;
+}
+
+@media (max-width: 920px) {
+  .page-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .title-overlay h1 {
+    font-size: 34px;
+  }
+}
