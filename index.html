@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>羅喉傳：天都戰記</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="game">
+    <h1>羅喉傳：天都戰記</h1>
+    <div id="story"></div>
+    <div id="choices"></div>
+    <div id="battle" class="hidden">
+      <p id="battle-log"></p>
+      <button onclick="attack()">攻擊</button>
+      <button onclick="skill()">技能</button>
+    </div>
+    <div id="status"></div>
+  </div>
+  <script src="data/story.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
