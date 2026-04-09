@@ -1,0 +1,1 @@
+const mapData={ruin:{name:'天都廢墟',unlocked:true},wasteland:{name:'邊境荒原',unlocked:false},city:{name:'迷城古都',unlocked:false},boss:{name:'深淵核心',unlocked:false}};
