@@ -1,0 +1,29 @@
+const SAVE_PLUS='v4_fixed_plus';
+let p={hp:150,maxHp:150,mp:60,maxMp:60,rage:0,atk:15,lv:1,inventory:['potion_small','blade_jidu'],equipment:{weapon:null,armor:null,accessory:null},location:'ruin'};
+let e=null;
+const byId=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const bonus=(slot,stat)=>{const id=p.equipment[slot];return id&&items[id]&&items[id][stat]?items[id][stat]:0};
+const maxHp=()=>p.maxHp+bonus('armor','hp');
+const maxMp=()=>p.maxMp+bonus('accessory','mp');
+const atk=()=>p.atk+bonus('weapon','atk');
+function msg(t){if(byId('system-message'))byId('system-message').innerText=t||''}
+function ui(){p.hp=clamp(p.hp,0,maxHp());p.mp=clamp(p.mp,0,maxMp());byId('hp-text').innerText=`${p.hp}/${maxHp()}`;byId('mp-text').innerText=`${p.mp}/${maxMp()}`;byId('rage-text').innerText=`${p.rage}/100`;byId('hp-bar').style.width=(p.hp/maxHp()*100)+'%';byId('mp-bar').style.width=(p.mp/maxMp()*100)+'%';byId('rage-bar').style.width=p.rage+'%';byId('stats').innerHTML=`<div>等級：${p.lv}</div><div>攻擊：${atk()}</div><div>位置：${mapData[p.location]?.name||''}</div><div>狀態：${p.hp>0?'可戰':'倒下'}</div>`;byId('equipment-panel').innerHTML=`<div class='equipment-item'>武器：${p.equipment.weapon?items[p.equipment.weapon].name:'無'}</div><div class='equipment-item'>防具：${p.equipment.armor?items[p.equipment.armor].name:'無'}</div><div class='equipment-item'>飾品：${p.equipment.accessory?items[p.equipment.accessory].name:'無'}</div>`}
+function story(t){if(byId('story'))byId('story').innerText=t||''}
+function mapView(){const el=byId('map-panel');el.innerHTML='';Object.keys(mapData).forEach(k=>{const n=mapData[k],d=document.createElement('div');d.className='map-node'+(n.unlocked?'':' locked');d.innerText=n.name;if(n.unlocked)d.onclick=()=>go(k);el.appendChild(d)})}
+function inv(){const el=byId('inventory-panel');el.innerHTML='';p.inventory.forEach(id=>{const it=items[id],d=document.createElement('div');d.className='inventory-item';d.innerText=it.name+'\n'+(it.desc||'');d.onclick=()=>it.type==='consumable'?use(id):equip(id);el.appendChild(d)})}
+function equip(id){const it=items[id];if(!it.slot)return;p.equipment[it.slot]=id;msg('已裝備：'+it.name);ui();inv()}
+function use(id){const it=items[id];if(it.effect?.hp)p.hp=clamp(p.hp+it.effect.hp,0,maxHp());if(it.effect?.mp)p.mp=clamp(p.mp+it.effect.mp,0,maxMp());const i=p.inventory.indexOf(id);if(i>=0)p.inventory.splice(i,1);msg('已使用：'+it.name);ui();inv()}
+function go(k){p.location=k;msg('前往：'+mapData[k].name);if(mapData[k].battle)battle(mapData[k].battle);else ui()}
+function battle(key){e={...enemies[key],currentHp:enemies[key].hp};byId('battle-panel').classList.remove('hidden');story('遭遇敵人：'+e.name+'\n'+(e.intro||''));drawBattle()}
+function log(t){byId('battle-log').innerText=t}
+function drawBattle(){byId('enemy-name').innerText=e.name;byId('enemy-level').innerText='Lv.'+e.level;byId('enemy-hp-text').innerText=`${e.currentHp}/${e.hp}`;byId('enemy-hp-bar').style.width=(e.currentHp/e.hp*100)+'%';const a=byId('battle-actions');a.innerHTML='';[['普通攻擊',()=>turn('a')],['武君戰印',()=>turn('s')],['計略觀心',()=>turn('m')],['終式・計都斬',()=>turn('u')]].forEach(([t,f])=>{const b=document.createElement('button');b.innerText=t;b.onclick=f;a.appendChild(b)});ui()}
+function turn(t){let d=0,m='';if(t==='a'){d=Math.floor(atk()+Math.random()*6);p.rage=clamp(p.rage+20,0,100);m='你造成 '+d+' 傷害。'}if(t==='s'){if(p.mp<10){log('真元不足。');return}p.mp-=10;d=Math.floor(atk()+15+Math.random()*5);p.rage=clamp(p.rage+10,0,100);m='武君戰印造成 '+d+' 傷害。'}if(t==='m'){p.mp=clamp(p.mp+10,0,maxMp());m='你恢復真元。'}if(t==='u'){if(p.rage<100){log('怒氣不足。');return}p.rage=0;d=Math.floor(atk()+35+Math.random()*8);m='終式造成 '+d+' 傷害。'}e.currentHp-=d;if(e.currentHp<=0){win(m);return}enemy(m)}
+function enemy(prefix){const d=Math.floor(e.atk+Math.random()*4);p.hp=clamp(p.hp-d,0,maxHp());if(p.hp<=0){log(prefix+'\n'+e.name+' 反擊 '+d+'。\n你戰敗了。');byId('battle-actions').innerHTML='';msg('已戰敗，請重新開始或讀檔。');ui();return}log(prefix+'\n'+e.name+' 反擊 '+d+'。');drawBattle()}
+function unlock(){if(p.location==='ruin'&&mapData.wasteland)mapData.wasteland.unlocked=true;if(p.location==='wasteland'&&mapData.ghost_city)mapData.ghost_city.unlocked=true}
+function win(prefix){byId('battle-panel').classList.add('hidden');byId('battle-actions').innerHTML='';p.lv++;p.hp=clamp(p.hp+20,0,maxHp());p.mp=clamp(p.mp+10,0,maxMp());if(e.drop&&e.drop.length){const drop=e.drop[0];p.inventory.push(drop);msg('獲得：'+items[drop].name);log(prefix+'\n你擊敗了 '+e.name+'，獲得 '+items[drop].name+'。')}unlock();e=null;ui();mapView();inv()}
+function save(){localStorage.setItem(SAVE_PLUS,JSON.stringify({p,mapData}));msg('已儲存進度。')}
+function load(){const s=JSON.parse(localStorage.getItem(SAVE_PLUS)||'null');if(!s){msg('沒有存檔。');return}p=s.p;Object.assign(mapData,s.mapData);ui();mapView();inv();msg('已讀取進度。')}
+function restart(){p={hp:150,maxHp:150,mp:60,maxMp:60,rage:0,atk:15,lv:1,inventory:['potion_small','blade_jidu'],equipment:{weapon:null,armor:null,accessory:null},location:'ruin'};if(mapData.wasteland)mapData.wasteland.unlocked=false;if(mapData.ghost_city)mapData.ghost_city.unlocked=false;byId('battle-panel').classList.add('hidden');story('你從天都廢墟醒來。');ui();mapView();inv();msg('已重新開始。')}
+function bind(){byId('start-game-btn').onclick=()=>{byId('title-screen').classList.add('hidden');byId('game-app').classList.remove('hidden');story('你從天都廢墟醒來。');ui();mapView();inv()};byId('show-help-btn').onclick=()=>byId('help-modal').classList.remove('hidden');byId('close-help-btn').onclick=()=>byId('help-modal').classList.add('hidden');byId('save-btn').onclick=save;byId('load-btn').onclick=load;byId('restart-btn').onclick=restart;byId('toggle-audio-btn').onclick=()=>msg('音效預留，後續可接入。')}
+bind();
